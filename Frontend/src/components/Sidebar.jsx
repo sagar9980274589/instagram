@@ -116,14 +116,17 @@ if(text=="logout"){
     localStorage.removeItem('persist:root')
     navigate('/login');
 }
-if(text=="create"){
+else if(text=="create"){
    setcreateopen(true);
 }
-if(text=="profile"){
+else if(text=="profile"){
     navigate('/profile')
  }
- if(text=="home"){
+ else if(text=="home"){
     navigate('/')
+ }
+ else if(text=="messages"){
+    navigate('/chat')
  }
 }
 

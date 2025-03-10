@@ -74,7 +74,7 @@ const Myprofile = () => {
             onClick={() => setToggle(true)}
             className=" text-slate-600 cursor-ponter text-xl px-4 py-2 rounded-md"
           >
-             Bookmarks
+             Saved
           </span>
         </div>
 

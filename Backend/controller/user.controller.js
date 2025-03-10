@@ -174,7 +174,7 @@ export const getothersprofile = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ username: username }).select("-password");
+    const user = await User.findOne({ _id: username }).select("-password");
     if(user){
     res.status(200).json({
       success: true,
@@ -246,7 +246,7 @@ export const comment = async (req, res) => {
     const userid = req.id;
     const { comment } = req.body;
     const { post } = req.params;
-    console.log(comment,post)
+  
     if (!comment || !post) {
       return res
         .status(500)

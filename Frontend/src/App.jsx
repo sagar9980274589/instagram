@@ -8,6 +8,7 @@ import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Myprofile from "./components/Myprofile";
+import Chatpage from "./components/Chatpage";
 function App() {
   return (
     <>
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<><ProtectedRoute><Sidebar /></ProtectedRoute></>}>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Myprofile />} />
+          <Route path="/chat" element={<Chatpage />} />
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

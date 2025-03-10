@@ -131,16 +131,6 @@ async function  addbookmark() {
           dispatch(setpost(updatedPosts)); // Update posts in Redux
         }
 
-        toast.success(res.data.message, {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
       } else {
         console.log(res.data.message);
       }
