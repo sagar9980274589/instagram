@@ -15,8 +15,8 @@ const MessageSection = ({selectedUser}) => {
   <div className="messages flex flex-col">
 {
     [1,2,3,4,5].map(
-        (elem)=>{
-           return <span>{elem}</span>
+        (elem,idx)=>{
+           return <span key={idx}>{elem}</span>
         }
         )
 }

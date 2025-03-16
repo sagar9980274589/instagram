@@ -1,30 +1,88 @@
-import express, { urlencoded } from 'express'
-import cors from 'cors'
-import dotenv from 'dotenv'
-import connectDB from './db/db.js'
-import cookieParser from 'cookie-parser'
-dotenv.config({})
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import connectDB from './db/db.js';
+import cookieParser from 'cookie-parser';
+import { Server } from 'socket.io';
+import http from 'http';
 
-const app=express()
-app.use(express.json())
-app.use(urlencoded({extended:true}))
-app.use(cookieParser())
+dotenv.config();
+
+const app = express();
+const server = http.createServer(app);
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors({
-    origin:"http://localhost:5173",
-    Credential:true
-}))
-//routes
-import userRoute from './route/user.route.js'
+  origin: "http://localhost:5173",
+  credentials: true, // Fix 'Credential' to 'credentials'
+}));
 
-app.use('/user',userRoute)
+// Routes
+import userRoute from './route/user.route.js';
+app.use('/user', userRoute);
 
+// Root route for testing
+app.get('/', (req, res) => {
+  res.send("Hello, world!");
+});
 
-const port=process.env.PORT
+// Initialize Socket.IO with CORS configuration
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true, // Enable credentials
+  }
+});
 
-app.get('/',(req,res)=>{
-    res.send("hiiii")
-})
-app.listen(port,()=>{
-    connectDB();
-    console.log(`server running on port ${port}`)
-})
+const userSocketMap = {}; // Store userId to socketId mappings
+export const getsocketid=(receiverId)=>{
+  return 
+
+}
+// Handle socket connections
+io.on('connection', (socket) => {
+  console.log("A user has connected!");
+
+  const userId = socket.handshake.query.userId;
+    
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+    console.log(`User connected. User ID: ${userId}, Socket ID: ${socket.id}`);
+    io.emit('getonlineusers', Object.keys(userSocketMap));
+  } else {
+    console.log('User connected without userId!');
+  }
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    const userId = socket.handshake.query.userId;
+    
+    if (userId) {
+      delete userSocketMap[userId];  // Remove user from map
+      console.log(`User disconnected. User ID: ${userId}, Socket ID: ${socket.id}`);
+      io.emit('getonlineusers', Object.keys(userSocketMap));
+    } else {
+      console.log('Disconnected socket has no associated userId!');
+    }
+  });
+  //
+  socket.on('disconnectById', (targetSocketId) => {
+    if (connectedSockets[targetSocketId]) {
+      connectedSockets[targetSocketId].disconnect();
+      console.log(`Socket with ID ${targetSocketId} has been disconnected`);
+    } else {
+      console.log(`No socket found with ID ${targetSocketId}`);
+    }
+  });
+});
+
+// Start server
+const port = process.env.PORT || 3000;  // Fallback to port 3000 if not defined in .env
+server.listen(port, () => {
+  connectDB();  // Connect to DB
+  console.log(`Server running on port ${port}`);
+});

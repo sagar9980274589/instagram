@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { useSelector ,useDispatch} from 'react-redux';
 import { setSelectedUser } from '../UserSlice';
  import api from '../AxiosInstance';
+
 import MessageSection from './MessageSection';
 const Chatpage = () => {
 
     const dispatch=useDispatch();
+     
+    const onlineUsers = useSelector((state) => state.chat.onlineusers ) || [];
     const selectedUser = useSelector((state) => state.data.selectedUser);
     const [suggested, setsuggested] = useState([]);
     const [selectedUserData, setSelectedUserData] = useState(null);
-    const [online, setonline] = useState(true);    
+  
     async function getsuggested() {
         try {
           const res = await api.get('/user/getsuggested');
@@ -70,7 +73,7 @@ const Chatpage = () => {
             <img src={sug.profile || null} alt="Profile" className="w-full h-full object-cover" />
           </div>
           <span className='w-52 text-md font-medium flex justify-items-start'>{sug.username}</span>
-         <span className={`${online?"text-green-600 ":"text-red-600" } font-semibold`}>{online?"Online":"Offline"}</span>
+         <span className={`${onlineUsers.includes(sug._id)?"text-green-600 ":"text-red-600" } font-semibold`}>{onlineUsers.includes(sug._id)?"Online":"Offline"}</span>
         </div>
       );
     }
@@ -99,7 +102,7 @@ const Chatpage = () => {
 
         <div className="msgbox border border-slate-400 w-[96%] rounded-2xl m-auto h-[50px] flex justify-between items-center">
 <input className='w-[80%] h-full outline-0 mx-4 p-2' placeholder='type your message...' type="text" />
-<span class="w-4 mx-6 cursor-pointer material-symbols-outlined">
+<span className="w-4 mx-6 cursor-pointer material-symbols-outlined">
 send
 </span>
         </div>
