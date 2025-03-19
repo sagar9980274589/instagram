@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     userSocketMap[userId] = socket.id;
 
     io.emit('getonlineusers', Object.keys(userSocketMap));
-    
+
   } else {
     console.log('User connected without userId!');
   }

@@ -14,7 +14,9 @@ const chatSlice = createSlice({
       state.messages.push(action.payload); // Add a new message
     },
     setOnlineUsers: (state, action) => {
+      
       state.onlineUsers = action.payload;
+     
     },
   },
 });

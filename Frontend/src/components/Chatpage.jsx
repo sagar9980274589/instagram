@@ -28,9 +28,10 @@ useChatListener();
   const { handleSubmit, register, reset, formState: { errors } } = useForm();
   
   const messages = useSelector((state) => state.chat.messages);
-  const uniqueMessages = [...new Map(messages.map((msg) => [msg._id, msg])).values()];
+  
   const dispatch = useDispatch();
-  const onlineUsers = useSelector((state) => state.chat.onlineusers) || [];
+  const onlineUsers = useSelector((state) => state.chat.onlineUsers) || [];
+
   const selectedUser = useSelector((state) => state.data.selectedUser);
   const [suggested, setsuggested] = useState([]);
   const [selectedUserData, setSelectedUserData] = useState({
@@ -38,7 +39,7 @@ useChatListener();
     fullname:"chat bot",
     username:"chat_bot"
    });
-
+   
   const userdata = useSelector((state) => state.data.userdata);
 
   const sendMessage = async (data) => {
@@ -60,6 +61,7 @@ useChatListener();
 
   const getSuggestedUsers = async () => {
     try {
+      
       const res = await api.get('/user/getsuggested');
       if (res.data.success) {
         setsuggested(res.data.suggested);
