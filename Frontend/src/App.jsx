@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSocket } from "./socketSlice"; // Manage socket state in Redux
 import { setOnlineUsers, addMessage } from "./chatSlice"; // Manage chat state
@@ -11,17 +11,17 @@ import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Myprofile from "./components/Myprofile";
 import Chatpage from "./components/Chatpage";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.data.userdata); // Get user from Redux
-  const socket = useSelector((state) => state.socket.socket); // Get socket from Redux
+  const socketRef = useRef(null); // Store socket reference
 
   useEffect(() => {
-    if (user && user._id && !socket) {
-     
+    if (user && user._id && !socketRef.current) {
+      console.log("🔌 Connecting socket...");
 
       const socketio = io("http://localhost:3000", {
         query: { userId: user._id },
@@ -30,28 +30,30 @@ function App() {
         reconnectionAttempts: 5,
       });
 
+      socketRef.current = socketio; // Store in ref to prevent re-renders
+      dispatch(setSocket(socketio)); // Store in Redux
+
       socketio.on("connect", () => {
-   
-        dispatch(setSocket(socketio)); // Store socket instance directly in Redux
+        console.log("✅ Socket connected");
       });
 
       socketio.on("getonlineusers", (onlineusers) => {
-    
         dispatch(setOnlineUsers(onlineusers));
       });
 
       socketio.on("newMessage", (newMessage) => {
-       
         dispatch(addMessage(newMessage));
       });
 
       return () => {
         console.log("❌ Disconnecting socket...");
+        toast.error("Please reload, ❌ Disconnecting socket...");
         socketio.disconnect();
-        dispatch(setSocket(null)); // Reset socket in Redux
+        socketRef.current = null; // Reset ref
+        dispatch(setSocket(null)); // Reset Redux state
       };
     }
-  }, [user, dispatch]); // Removed `socket` from dependency array
+  }, [user, dispatch]); // ✅ Removed `socket` from dependencies
 
   return (
     <>
