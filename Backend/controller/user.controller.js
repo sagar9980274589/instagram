@@ -4,6 +4,7 @@ import Comment from "../model/comment.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { uploadToCloudinary } from "../service/multer.js";
+import { getsocketid, io } from "../index.js";
 //Controller to register user
 
 export const register = async (req, res) => {
@@ -305,26 +306,55 @@ export const likeorunlike = async (req, res) => {
         });
       }
   
-      const user = await User.findOne({ _id: userid });
+      const user = await User.findOne({ _id: userid }).select('username profile');
+      
   
       if (user) {
         const postdata= await Post.findOne({_id:post})
+        const postownerid=postdata.author._id;
+
+
+
         if( postdata.likes.includes(userid))
         {
           await Post.findOneAndUpdate(
             { _id: post },
             { $pull: { likes: user._id } }
           );
-    
-          res.status(200).json({  success: true, message: "liked" });
+          if(postownerid!==userid){
+            const notification={
+              type:"dislike",
+              userid,
+              userdetails:user,
+              post,
+              message:"your post was liked"
+              
+            }
+          const postownersocketid=getsocketid(postownerid);
+          io.to(postownersocketid).emit('notification',notification);
+          }
+          res.status(200).json({  success: true, message: "disliked" });
         }
         else{
+         
           await Post.findOneAndUpdate(
             { _id: post },
             { $push: { likes: user._id } }
           );
-    
-          res.status(200).json({  success: true, message: "disliked" });
+          if(postownerid!==userid){
+            const notification={
+              type:"like",
+              userid,
+              userdetails:user,
+              post,
+              message:"your post was liked"
+              
+            }
+          const postownersocketid=getsocketid(postownerid);
+          io.to(postownersocketid).emit('notification',notification);
+          }
+
+          res.status(200).json({  success: true, message: "liked" });
         }
        
 

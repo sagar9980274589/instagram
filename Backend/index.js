@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 // Initialize Socket.IO with CORS configuration
-const io = new Server(server, {
+ const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
@@ -40,19 +40,21 @@ const io = new Server(server, {
 
 const userSocketMap = {}; // Store userId to socketId mappings
 export const getsocketid=(receiverId)=>{
-  return 
+  
+  return userSocketMap[receiverId]
 
 }
 // Handle socket connections
 io.on('connection', (socket) => {
-  console.log("A user has connected!");
+ 
 
   const userId = socket.handshake.query.userId;
-    
+ 
   if (userId) {
     userSocketMap[userId] = socket.id;
-    console.log(`User connected. User ID: ${userId}, Socket ID: ${socket.id}`);
+
     io.emit('getonlineusers', Object.keys(userSocketMap));
+    
   } else {
     console.log('User connected without userId!');
   }
@@ -63,7 +65,7 @@ io.on('connection', (socket) => {
     
     if (userId) {
       delete userSocketMap[userId];  // Remove user from map
-      console.log(`User disconnected. User ID: ${userId}, Socket ID: ${socket.id}`);
+    
       io.emit('getonlineusers', Object.keys(userSocketMap));
     } else {
       console.log('Disconnected socket has no associated userId!');
@@ -86,3 +88,5 @@ server.listen(port, () => {
   connectDB();  // Connect to DB
   console.log(`Server running on port ${port}`);
 });
+
+export {io}

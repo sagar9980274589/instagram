@@ -1,26 +1,18 @@
-import { createSlice } from '@reduxjs/toolkit';
-
-const initialState = {
-  socketId: null,  // Store only the socket ID instead of the whole socket instance
-  connected: false, // Store connection status
-};
-
+// In socketSlice.js
+import { createSlice } from "@reduxjs/toolkit";
 const socketSlice = createSlice({
-  name: 'socket',
-  initialState,
+  name: "socket",
+  initialState: {
+    connected: false, // Store only connected status or other serializable data
+    userId: null,
+  },
   reducers: {
-    // Action to set socket metadata
-    setsocket: (state, action) => {
-      state.socketId = action.payload.socketId || null;
-      state.connected = action.payload.connected || false;
-    },
-    resetSocket: (state) => {
-      state.socketId = null;
-      state.connected = false;
+    setSocket: (state, action) => {
+      state.connected = action.payload.connected;
+      state.userId = action.payload.userId;
     },
   },
 });
 
-export const { setsocket, resetSocket } = socketSlice.actions;
-
+export const { setSocket } = socketSlice.actions;
 export default socketSlice.reducer;

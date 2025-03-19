@@ -1,63 +1,65 @@
-import Register from "./components/Register";
-import { Routes, Route } from "react-router-dom";
-import Login from "./components/Login";
-import { ToastContainer } from "react-toastify";
 import { useEffect } from "react";
-import "react-toastify/dist/ReactToastify.css";
-import { setonlineusers } from "./chatSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setSocket } from "./socketSlice";  // Assuming you have a socketSlice to handle socket connection
+import { setOnlineUsers,setMessages} from "./chatSlice";  // Import chatSlice actions
+import io from "socket.io-client";
+import { Routes, Route } from "react-router-dom";
+import Register from "./components/Register";
+import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Myprofile from "./components/Myprofile";
 import Chatpage from "./components/Chatpage";
-import { setsocket } from "./socketSlice"; // Import the action from socketSlice
-import io from "socket.io-client";
-import { useSelector, useDispatch } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.data.userdata);
-  const socket = useSelector((state) => state.socket.socketId); // Get socketId from Redux state
+  const user = useSelector((state) => state.data.userdata);  // Get user data from Redux state
+  const socket = useSelector((state) => state.socket.socket); // Get socket instance directly from Redux state
 
   useEffect(() => {
-    if (user) {
+    // Only initialize socket if user is available and socket instance is not already set
+    if (user && user._id && !socket) {
       const socketio = io("http://localhost:3000", {
         query: { userId: user._id },
         transports: ['polling', 'websocket'],
       });
 
-      // Dispatch metadata instead of the entire socket instance
-      dispatch(setsocket({
-        socketId: socketio.id, 
-        connected: socketio.connected
+      // Dispatch socket instance to Redux state
+      dispatch(setSocket({
+        socket: socketio, // Store socket instance
+        userId: user._id, // User ID
+        connected: socketio.connected, // Connection status
       }));
 
-      // Listening for events from the server
+      // Listen for online users event
       socketio.on("getonlineusers", (onlineusers) => {
-        dispatch(setonlineusers(onlineusers));
+        dispatch(setOnlineUsers(onlineusers));
       });
 
-      // Cleanup socket on component unmount
+      // Listen for new messages event and add the new message
+      socketio.on("newmessage", (newMessage) => {
+        dispatch(setMessages(newMessage));
+      });
+
+      // Clean up the socket connection on component unmount
       return () => {
-        socketio.disconnect();
-        dispatch(setsocket({
-          socketId: null,
-          connected: false,
-        })); // Reset socket metadata
+        if (socketio) {
+          socketio.disconnect(); // Disconnect socket
+          dispatch(setSocket({ socket: null, connected: false, userId: null })); // Clear socket info from Redux
+        }
       };
     }
 
     return () => {
+      // If socket already exists, clear it (although useEffect's cleanup already handles it)
       if (socket) {
-        // Cleanup the socket if the user logs out or socket is no longer active
-        socket.disconnect();
-        dispatch(setsocket({
-          socketId: null,
-          connected: false,
-        }));
+        dispatch(setSocket({ socket: null, connected: false, userId: null }));
       }
     };
-  }, [user, dispatch, socket]);
+  }, [user, socket, dispatch]);  // Ensure effect only runs when user or socket changes
 
   return (
     <>
@@ -73,7 +75,6 @@ function App() {
         pauseOnHover
         theme="light"
       />
-
       <Routes>
         <Route path="/" element={<><ProtectedRoute><Sidebar /></ProtectedRoute></>}>
           <Route path="/" element={<Home />} />

@@ -117,7 +117,7 @@ async function  addbookmark() {
       const res = await api.get(`/user/like/${postId}`);
       if (res.data.success) {
         dispatch(reload()); // Trigger reload to refetch posts
-
+toast.success(`${res.data.message}`)
         // Handle liked/disliked state
         if (res.data.message === 'liked') {
           const updatedPosts = posts.map((p) =>

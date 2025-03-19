@@ -19,7 +19,7 @@ const UserSlice=createSlice({
     
          },
          setSelectedUser:(state,action)=>{
-          
+        
           state.selectedUser=action.payload;
     
        },

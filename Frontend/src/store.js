@@ -8,16 +8,17 @@ import { persistReducer, persistStore } from "redux-persist";
 
 // Persist config
 const persistConfig = {
-  key: "root",
-  storage,
+  key: "root", // Root key for persist
+  storage, // Using localStorage as the default storage
+  blacklist: ["socket"], // Blacklist socket slice to prevent it from persisting
 };
 
 // Combine reducers
 const rootReducer = combineReducers({
-  chat: chatSlice,
-  data: UserSlice,
-  posts: PostSlice,
-  socket: socketSlice,
+  chat: chatSlice, // Chat state
+  data: UserSlice, // User data
+  posts: PostSlice, // Post-related state
+  socket: socketSlice, // Socket instance state
 });
 
 // Apply persistReducer to the root reducer
@@ -32,12 +33,12 @@ export const store = configureStore({
         ignoredActions: [
           "persist/PERSIST",
           "persist/REHYDRATE",
-          "socketio/setsocket", // Ignore socket-related actions
+          "socket/setSocket", // Ignore socket-related actions
         ],
-        ignoredPaths: ["socket.socketId", "socket.connected"], // Ignore socket fields in state
+        ignoredPaths: ["socket.socket"], // Ignore the socket field in the state
       },
     }),
 });
 
 // Create persistor
-export const persistor = persistStore(store);
+export const persistor = persistStore(store); // Allows persistence for other slices
