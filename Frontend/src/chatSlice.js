@@ -3,21 +3,21 @@ import { createSlice } from "@reduxjs/toolkit";
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
-    onlineusers: [], // Online users list
-    messages: [],    // Messages array
+    messages: [],
+    onlineUsers: [],
   },
   reducers: {
-    setOnlineUsers: (state, action) => {
-      state.onlineusers = action.payload;
-    },
     setMessages: (state, action) => {
-      // Directly set messages if the payload is an array
-      state.messages.push(action.payload);
-    }
-   
+      state.messages = action.payload; // Set messages initially
+    },
+    addMessage: (state, action) => {
+      state.messages.push(action.payload); // Add a new message
+    },
+    setOnlineUsers: (state, action) => {
+      state.onlineUsers = action.payload;
+    },
   },
 });
 
-export const { setOnlineUsers, setMessages } = chatSlice.actions;
-
+export const { setMessages, addMessage, setOnlineUsers } = chatSlice.actions;
 export default chatSlice.reducer;

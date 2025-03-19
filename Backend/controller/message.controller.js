@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 // Send message function
 export const sendmessage = async (req, res) => {
   try {
-    const senderId = req.id; // Make sure this value is properly set (i.e., from authenticated user)
+    const senderId = req.id; 
     const receiverId = req.params.receiverId;
     const { message } = req.body;
 
@@ -29,6 +29,7 @@ export const sendmessage = async (req, res) => {
     }
 
     // Create a new message
+   
     const newMessage = await Message.create({
       senderId,
       receiverId,
@@ -47,13 +48,12 @@ export const sendmessage = async (req, res) => {
     const receiverSocketId = getsocketid(receiverId);
 
     if (receiverSocketId) {
-      const socket = io.sockets.sockets.get(receiverSocketId);
-      if (socket) {
-        socket.emit("newMessage", newMessage);
-        console.log("Message emitted");
-      } else {
-        console.log("Receiver socket not connected!");
-      }
+    
+  
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+        
+     
+       
     } else {
       console.log("Receiver socket ID not found!");
     }

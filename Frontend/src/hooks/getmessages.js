@@ -15,9 +15,10 @@ const useGetmessages = () => {
       try {
         const res = await api.get(`/user/getmessages/${selectedUser}`);
         if (res.data.sucess) {
+         
           dispatch(setMessages(res.data.messages));
         } else {
-        
+         
           dispatch(setMessages(res.data.messages));
         }
       } catch (err) {
@@ -26,7 +27,7 @@ const useGetmessages = () => {
     };
 
     getmessages();
-  }, [selectedUser, dispatch]);  // Only run when selectedUser changes
+  }, [selectedUser, dispatch]);  
 
 };
 export default useGetmessages;

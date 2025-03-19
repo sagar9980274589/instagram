@@ -1,15 +1,13 @@
-// In socketSlice.js
 import { createSlice } from "@reduxjs/toolkit";
+
 const socketSlice = createSlice({
   name: "socket",
   initialState: {
-    connected: false, // Store only connected status or other serializable data
-    userId: null,
+    socket: null,
   },
   reducers: {
     setSocket: (state, action) => {
-      state.connected = action.payload.connected;
-      state.userId = action.payload.userId;
+      state.socket = action.payload; // 🔥 Store actual socket instance
     },
   },
 });

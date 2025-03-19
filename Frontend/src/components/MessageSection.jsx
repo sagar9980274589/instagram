@@ -3,9 +3,11 @@ import useGetmessages from '../hooks/getmessages';
 
 import { useSelector } from 'react-redux';
 const MessageSection = ({selectedUser}) => {
-useGetmessages();
+  
+
 
   const messages=useSelector((state)=>state.chat.messages);
+  const uniqueMessages = [...new Map(messages.map((msg) => [msg._id, msg])).values()];
 const loggeduserid = useSelector((state) => state.data.userdata._id);
   return (
   <>
@@ -21,10 +23,10 @@ const loggeduserid = useSelector((state) => state.data.userdata._id);
   <div  className="messages  h-[60%] overflow-y-scroll flex flex-col">
 {
 
-    messages &&  messages.map(
-        (elem)=>{
+    uniqueMessages &&  uniqueMessages.map(
+        (elem,idx)=>{
            return (
-           <span key={elem._id} className={`flex  w-full p-4 rounded-2xl  ${elem.senderId==loggeduserid?"justify-end":"justify-start"}   `} >
+           <span key={idx} className={`flex  w-full p-4 rounded-2xl  ${elem.senderId==loggeduserid?"justify-end":"justify-start"}   `} >
 <span className={`p-4 rounded-2xl ${elem.senderId==loggeduserid?"justify-end text-white bg-blue-500":"justify-start bg-slate-300"}`}>{elem.message}</span>
            </span>
            

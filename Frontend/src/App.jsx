@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSocket } from "./socketSlice";  // Assuming you have a socketSlice to handle socket connection
-import { setOnlineUsers,setMessages} from "./chatSlice";  // Import chatSlice actions
+import { setSocket } from "./socketSlice"; // Manage socket state in Redux
+import { setOnlineUsers, addMessage } from "./chatSlice"; // Manage chat state
 import io from "socket.io-client";
 import { Routes, Route } from "react-router-dom";
 import Register from "./components/Register";
@@ -16,50 +16,42 @@ import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.data.userdata);  // Get user data from Redux state
-  const socket = useSelector((state) => state.socket.socket); // Get socket instance directly from Redux state
+  const user = useSelector((state) => state.data.userdata); // Get user from Redux
+  const socket = useSelector((state) => state.socket.socket); // Get socket from Redux
 
   useEffect(() => {
-    // Only initialize socket if user is available and socket instance is not already set
     if (user && user._id && !socket) {
+     
+
       const socketio = io("http://localhost:3000", {
         query: { userId: user._id },
-        transports: ['polling', 'websocket'],
+        transports: ["polling", "websocket"],
+        reconnection: true,
+        reconnectionAttempts: 5,
       });
 
-      // Dispatch socket instance to Redux state
-      dispatch(setSocket({
-        socket: socketio, // Store socket instance
-        userId: user._id, // User ID
-        connected: socketio.connected, // Connection status
-      }));
+      socketio.on("connect", () => {
+   
+        dispatch(setSocket(socketio)); // Store socket instance directly in Redux
+      });
 
-      // Listen for online users event
       socketio.on("getonlineusers", (onlineusers) => {
+      
         dispatch(setOnlineUsers(onlineusers));
       });
 
-      // Listen for new messages event and add the new message
-      socketio.on("newmessage", (newMessage) => {
-        dispatch(setMessages(newMessage));
+      socketio.on("newMessage", (newMessage) => {
+       
+        dispatch(addMessage(newMessage));
       });
 
-      // Clean up the socket connection on component unmount
       return () => {
-        if (socketio) {
-          socketio.disconnect(); // Disconnect socket
-          dispatch(setSocket({ socket: null, connected: false, userId: null })); // Clear socket info from Redux
-        }
+        console.log("❌ Disconnecting socket...");
+        socketio.disconnect();
+        dispatch(setSocket(null)); // Reset socket in Redux
       };
     }
-
-    return () => {
-      // If socket already exists, clear it (although useEffect's cleanup already handles it)
-      if (socket) {
-        dispatch(setSocket({ socket: null, connected: false, userId: null }));
-      }
-    };
-  }, [user, socket, dispatch]);  // Ensure effect only runs when user or socket changes
+  }, [user, dispatch]); // Removed `socket` from dependency array
 
   return (
     <>
@@ -76,7 +68,7 @@ function App() {
         theme="light"
       />
       <Routes>
-        <Route path="/" element={<><ProtectedRoute><Sidebar /></ProtectedRoute></>}>
+        <Route path="/" element={<ProtectedRoute><Sidebar /></ProtectedRoute>}>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Myprofile />} />
           <Route path="/chat" element={<Chatpage />} />
