@@ -8,6 +8,10 @@ const MessageSection = ({selectedUser}) => {
 
   const messages=useSelector((state)=>state.chat.messages);
   const uniqueMessages = [...new Map(messages.map((msg) => [msg._id, msg])).values()];
+
+
+
+ 
 const loggeduserid = useSelector((state) => state.data.userdata._id);
   return (
   <>

@@ -13,6 +13,7 @@ import Myprofile from "./components/Myprofile";
 import Chatpage from "./components/Chatpage";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SearchPage from "./components/search/SearchPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -46,11 +47,11 @@ function App() {
       });
 
       return () => {
-        console.log("❌ Disconnecting socket...");
-        toast.error("Please reload, ❌ Disconnecting socket...");
-        socketio.disconnect();
-        socketRef.current = null; // Reset ref
-        dispatch(setSocket(null)); // Reset Redux state
+        // console.log("❌ Disconnecting socket...");
+        // toast.error("Please reload, ❌ Disconnecting socket...");
+        // socketio.disconnect();
+        // socketRef.current = null; // Reset ref
+        // dispatch(setSocket(null)); // Reset Redux state
       };
     }
   }, [user, dispatch]); // ✅ Removed `socket` from dependencies
@@ -74,6 +75,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Myprofile />} />
           <Route path="/chat" element={<Chatpage />} />
+          <Route path="/search" element={<SearchPage/>} />
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

@@ -128,6 +128,9 @@ else if(text=="profile"){
  else if(text=="messages"){
     navigate('/chat')
  }
+ else if(text=="search"){
+    navigate('/search')
+ }
 }
 
 
