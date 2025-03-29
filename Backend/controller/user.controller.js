@@ -5,53 +5,58 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { uploadToCloudinary } from "../service/multer.js";
 import { getsocketid, io } from "../index.js";
-//Controller to register user
+
+
+import { validationResult } from "express-validator";
 
 export const register = async (req, res) => {
   try {
-    const { fullname, email, password, username } = req.body;
+    const { fullname, email, password, username, facialEmbeddings } = req.body;
 
-    if (!fullname || !email || !password || !username) {
-      return res.json({
-        success: false,
-        message: "all fields are required",
-      });
-    }
-    const user = await User.find({ email: email });
-   
-    if (user.length > 0) {
-      return res.status(500).json({
-        success: false,
-        message: "user already exist",
-      });
-    }
-    try {
-      const hashedpass = await bcrypt.hash(password, 10);
-    
-      const createduser = await User.insertOne({
-        fullname,
-        email,
-        password: hashedpass,
-        username,
-      });
-    } catch (err) {
+    // ✅ Validate request body
+    if (!fullname || !email || !password || !username || !facialEmbeddings) {
       return res.status(400).json({
         success: false,
-        message: `error saving user : ${err}`,
+        message: "All fields are required, including facial embeddings.",
       });
     }
-    return res.status(200).json({
+
+    // ✅ Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists. Please log in.",
+      });
+    }
+
+    // ✅ Hash the password securely
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // ✅ Create new user in the database
+    const newUser = await User.create({
+      fullname,
+      email,
+      password: hashedPassword,
+      username,
+      facialEmbeddings, // ✅ Store facial data
+    });
+
+    return res.status(201).json({
       success: true,
-      message: "user registered succesfully",
+      message: "User registered successfully!",
+      userId: newUser._id, // Return the user ID if needed
     });
   } catch (err) {
-    console.log("error registering user :", err);
-    return res.status(400).json({
+    console.error("❌ Error registering user:", err);
+    return res.status(500).json({
       success: false,
-      message: `something went wrong : ${err}`,
+      message: "Something went wrong. Please try again later.",
+      error: err.message, // Avoid exposing sensitive errors
     });
   }
 };
+
 
 export const login = async (req, res) => {
   try {

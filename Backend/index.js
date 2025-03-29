@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './db/db.js';
 import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
+
 import http from 'http';
 
 dotenv.config();
@@ -22,6 +23,8 @@ app.use(cors({
 
 // Routes
 import userRoute from './route/user.route.js';
+
+
 app.use('/user', userRoute);
 
 // Root route for testing

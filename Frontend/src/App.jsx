@@ -14,6 +14,7 @@ import Chatpage from "./components/Chatpage";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchPage from "./components/search/SearchPage";
+import GetFacialData from "./components/facialDataRegister/GetFacialData";
 
 function App() {
   const dispatch = useDispatch();
@@ -79,6 +80,7 @@ function App() {
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/facialData" element={<GetFacialData/>} />
       </Routes>
     </>
   );

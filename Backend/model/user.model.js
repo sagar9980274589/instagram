@@ -1,17 +1,25 @@
 import mongoose from "mongoose";
-// user model
 
-const userSchema= new mongoose.Schema({
-    email:{type:String,require:true},
-    password:{type:String,require:true},
-    username:{type:String,require:true},
-    fullname:{type:String,require:true},
-    gender:{type:String, enum:["m","f"]},
-    posts:[{type:mongoose.Schema.Types.ObjectId, ref:"Post"}],
-    following:[{type:mongoose.Schema.Types.ObjectId, ref:"User"}],
-    followers:[{type:mongoose.Schema.Types.ObjectId, ref:"User"}],
-    bio:{type:String,default:''},
-    profile:{type:String,default:''},
-    bookmarks:[{type:mongoose.Schema.ObjectId,ref:'Post',default:[]}]
-},{timestamps:true})
-export default mongoose.model('User',userSchema);
+// Define user schema
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
+  fullname: { type: String, required: true },
+  gender: { type: String, enum: ["m", "f"] },
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  bio: { type: String, default: "" },
+  profile: { type: String, default: "" },
+  bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
+  
+  // ✅ Added Facial Embeddings Field
+  facialEmbeddings: {
+    type: [Number], // Array of numbers (128D face vector)
+    default: [],
+  },
+
+}, { timestamps: true });
+
+export default mongoose.model("User", userSchema);
