@@ -8,6 +8,7 @@ const SearchPage = () => {
   const [searchText, setSearchText] = useState("");
   const [image, setImage] = useState(null);
   const [faceEmbeddings, setFaceEmbeddings] = useState(null);
+  const [deepAgingEnabled, setDeepAgingEnabled] = useState(false);
 
   useEffect(() => {
     async function getAllUsers() {
@@ -39,6 +40,12 @@ const SearchPage = () => {
     loadModels();
   }, []);
 
+  useEffect(() => {
+    if (deepAgingEnabled) {
+      console.log("🔵 Deep Aging Enabled");
+    }
+  }, [deepAgingEnabled]);
+
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchText(value);
@@ -61,9 +68,29 @@ const SearchPage = () => {
         .withFaceDescriptor();
 
       if (detections) {
-        console.log("✅ Facial embeddings found:", detections.descriptor);
-        setFaceEmbeddings(detections.descriptor);
-        filterResults(searchText, detections.descriptor);
+        let processedEmbeddings = detections.descriptor;
+        console.log("✅ Facial embeddings found:", processedEmbeddings);
+
+        if (deepAgingEnabled) {
+          console.log("🟡 Sending embeddings for deep aging...");
+          try {
+            const response = await api.post("/deep-aging/process", {
+              embeddings: processedEmbeddings,
+            });
+
+            if (response.data.success) {
+              processedEmbeddings = response.data.agedEmbeddings;
+              console.log("✅ Deep-aged embeddings received:", processedEmbeddings);
+            } else {
+              console.error("❌ Deep aging failed:", response.data.message);
+            }
+          } catch (error) {
+            console.error("❌ Error calling deep aging API:", error);
+          }
+        }
+
+        setFaceEmbeddings(processedEmbeddings);
+        filterResults(searchText, processedEmbeddings);
       } else {
         console.warn("⚠️ No clear face detected. Please upload a clearer image.");
         setFaceEmbeddings(null);
@@ -126,10 +153,10 @@ const SearchPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6 flex justify-center">
-      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6 ">
+      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6">
         <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800">Search Users</h1>
-        
-        <div className="flex items-center bg-gray-200 rounded-lg p-3 mb-4">
+
+        <div className="flex items-center bg-gray-200 rounded-lg p-3 mb-4 gap-1">
           <input
             onChange={handleSearch}
             value={searchText}
@@ -141,10 +168,14 @@ const SearchPage = () => {
           <label htmlFor="file-upload" className="cursor-pointer px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
             Upload Image
           </label>
+          <label className="ml-3 flex items-center space-x-2">
+            <input type="checkbox" checked={deepAgingEnabled} onChange={() => setDeepAgingEnabled(!deepAgingEnabled)} />
+            <span className="text-sm text-gray-700">Enable Deep Aging</span>
+          </label>
         </div>
 
         {image && (
-          <div className="flex flex-col items-center ">
+          <div className="flex flex-col items-center">
             <img src={image} alt="Uploaded" className="w-40 h-40 object-cover rounded-lg shadow-md border border-gray-300" />
             <button
               onClick={removeImage}
@@ -155,29 +186,19 @@ const SearchPage = () => {
           </div>
         )}
 
-        <div className="mt-6  h-[45%] overflow-y-scroll">
+        <div className="mt-6 h-[45%] overflow-y-scroll">
           {matchedUsers.length > 0 ? (
             matchedUsers.map((user) => (
               <div key={user._id} className="flex items-center gap-4 bg-white shadow-md rounded-lg p-4 mb-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-300">
-                  <img src={user.profile || "/default-profile.png"} alt="Profile" className="w-full h-full object-cover" />
-                </div>
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold text-gray-800">{user.username}</h2>
                   <p className="text-sm text-gray-500">{user.fullname}</p>
                 </div>
-                <span className={`px-3 py-1 text-xs font-semibold rounded-lg ${
-                  user.matchType.includes("Face") ? "bg-green-100 text-green-600" :
-                  user.matchType.includes("Text") ? "bg-blue-100 text-blue-600" : "bg-yellow-100 text-yellow-600"
-                }`}>
-                  {user.matchType.includes("Face") && user.matchScore !== undefined
-                    ? `Face Match (Score: ${user.matchScore.toFixed(2)})`
-                    : user.matchType}
-                </span>
+                <span className="px-3 py-1 text-xs font-semibold rounded-lg bg-green-100 text-green-600">{user.matchType}</span>
               </div>
             ))
           ) : (
-            (searchText || faceEmbeddings) && <p className="text-center text-gray-500 mt-4">No matching users found.</p>
+            <p className="text-center text-gray-500 mt-4">No matching users found.</p>
           )}
         </div>
       </div>
