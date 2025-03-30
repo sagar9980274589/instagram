@@ -1,10 +1,4 @@
-import requests
+import os
 
-url = "http://localhost:8000/api/deep-aging/transform"
-headers = {"Content-Type": "application/json"}
-data = {"embeddings": [float(i) for i in range(1, 129)]}
-
-response = requests.post(url, json=data, headers=headers)
-
-print(response.status_code)
-print(response.json())
+model_path = os.path.expanduser("~/.insightface/models/buffalo_l")
+print("Model Path:", model_path)

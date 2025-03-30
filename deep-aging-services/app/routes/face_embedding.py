@@ -1,42 +1,34 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
-import numpy as np
-import cv2
-import insightface
+from fastapi import APIRouter, UploadFile, File
 from insightface.app import FaceAnalysis
-import tempfile
-
-# Initialize FaceAnalysis for ArcFace
-face_app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
-face_app.prepare(ctx_id=0, det_size=(640, 640))
+import os
 
 router = APIRouter()
 
-@router.post("/extract")
-async def extract_embeddings(image: UploadFile = File(...)):
-    try:
-        # Save the uploaded image to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
-            temp_file.write(await image.read())
-            temp_file_path = temp_file.name
+# Define model path (update this if needed)
+custom_model_path = "C:/Users/sagar/OneDrive/Desktop/instagram/deep-aging-services/models"
 
-        # Read image using OpenCV
-        img = cv2.imread(temp_file_path)
-        if img is None:
-            raise HTTPException(status_code=400, detail="Invalid image file.")
+# Ensure model path exists
+if not os.path.exists(custom_model_path):
+    os.makedirs(custom_model_path)
 
-        # Convert to RGB
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+try:
+    # Load FaceAnalysis with explicit model path
+    face_app = FaceAnalysis(name="buffalo_l", root=custom_model_path, providers=['CPUExecutionProvider'])
+    face_app.prepare(ctx_id=0)
+    print("✅ FaceAnalysis model loaded successfully!")
+    print("Available models:", face_app.models.keys())  # Debugging: Check available models
+except AssertionError as e:
+    print("❌ Model loading failed! Ensure that 'detection' model is available.")
+    print(str(e))
+    face_app = None
 
-        # Detect face and extract embeddings
-        faces = face_app.get(img)
-
-        if len(faces) == 0:
-            raise HTTPException(status_code=404, detail="No face detected in the image.")
-
-        # Get the embeddings of the first detected face
-        embeddings = faces[0].normed_embedding
-
-        return {"success": True, "embeddings": embeddings.tolist()}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+@router.post("/extract-face-embeddings")
+async def extract_face_embeddings(file: UploadFile = File(...)):
+    if not face_app:
+        return {"error": "FaceAnalysis model not loaded. Check logs for details."}
+    
+    # Read the uploaded image
+    image_data = await file.read()
+    
+    # Process image (implement image loading and embedding extraction)
+    return {"message": "Processing image..."}

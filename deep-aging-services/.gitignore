@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.dll
+*.dylib
+
+# Virtual environment
+venv/
+.env
+.venv/
+env/
+
+# Dependency files
+Pipfile
+Pipfile.lock
+poetry.lock
+requirements.txt
+
+# IDE / Editor config files
+.vscode/
+.idea/
+*.iml
+
+# Logs and debugging
+logs/
+*.log
+*.out
+*.pid
+*.swp
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uvicorn and FastAPI cache
+*.db
+*.sqlite3
+instance/
+__pycache__/
+
+# Docker
+*.dockerignore
+docker-compose.yml
+Dockerfile
+# Ignore machine learning models & weights
+*.pth
+*.h5
+*.pkl
+*.onnx
+*.tflite
+*.ckpt
+*.weights
+models/
+checkpoints/
+
