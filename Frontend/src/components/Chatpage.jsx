@@ -8,6 +8,7 @@ import { setMessages } from '../chatSlice';
 import useGetmessages from '../hooks/getmessages';
 
 import useChatListener from '../hooks/useChatListener';
+import ChatBot from './ChatBot';
 
 const Chatpage = () => {
   const socket = useSelector((state) => state.socket.socket);
@@ -165,27 +166,7 @@ useChatListener();
             </div>
           </>
         ) : (
-          <>
-          <div className="border-b border-slate-400 p-2 my-2 card w-full h-15 flex justify-start items-start gap-4">
-            <div className="w-10 h-10 rounded-full overflow-hidden">
-              <img src={selectedUserData.profile || null} alt="Profile" className="w-full h-full object-cover" />
-            </div>
-            <span className="w-52 text-md font-medium flex justify-items-start">{selectedUserData.username}</span>
-          </div>
-          <div className="chats w-full h-[80%] m-0">
-            <MessageSection selectedUser={selectedUserData} />
-          </div>
-          <div className="sendmessage">
-            <form >
-              <div className="msgbox border border-slate-400 w-[96%] rounded-2xl m-auto h-[50px] flex justify-between items-center">
-                <input {...register("message")} className="w-[80%] h-full outline-0 mx-4 p-2" placeholder="Type your message..." type="text" />
-                <button type="submit">
-                  <span className="w-4 mx-6 cursor-pointer material-symbols-outlined">send</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </>
+         <ChatBot/>
         )}
       </div>
     </>
