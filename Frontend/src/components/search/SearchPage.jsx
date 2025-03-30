@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../AxiosInstance";
 import * as faceapi from "face-api.js";
-
+import axios from "axios";
 const SearchPage = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [matchedUsers, setMatchedUsers] = useState([]);
@@ -40,6 +40,13 @@ const SearchPage = () => {
     loadModels();
   }, []);
 
+  const reduceTo128D = (embeddings512D) => {
+    if (!embeddings512D || embeddings512D.length !== 512) return null;
+    
+    // Take only the first 128 values
+    return embeddings512D.slice(0, 128);
+  };
+  
   useEffect(() => {
     if (deepAgingEnabled) {
       console.log("🔵 Deep Aging Enabled");
@@ -52,15 +59,18 @@ const SearchPage = () => {
     filterResults(value, faceEmbeddings);
   };
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const img = URL.createObjectURL(file);
-    setImage(img);
+  const img = URL.createObjectURL(file);
+  setImage(img);
 
+  try {
+    console.log("🟡 Extracting facial embeddings...");
     const imgElement = new Image();
     imgElement.src = img;
+
     imgElement.onload = async () => {
       const detections = await faceapi
         .detectSingleFace(imgElement, new faceapi.TinyFaceDetectorOptions())
@@ -68,36 +78,49 @@ const SearchPage = () => {
         .withFaceDescriptor();
 
       if (detections) {
-        let processedEmbeddings = detections.descriptor;
-        console.log("✅ Facial embeddings found:", processedEmbeddings);
+        let embeddings = Array.from(detections.descriptor); // 128D embeddings
+        console.log("✅ Facial embeddings found (128D):", embeddings);
 
         if (deepAgingEnabled) {
-          console.log("🟡 Sending embeddings for deep aging...");
-          try {
-            const response = await api.post("/deep-aging/process", {
-              embeddings: processedEmbeddings,
-            });
+          console.log("🟡 Sending embeddings for deep aging transformation...");
 
-            if (response.data.success) {
-              processedEmbeddings = response.data.agedEmbeddings;
-              console.log("✅ Deep-aged embeddings received:", processedEmbeddings);
-            } else {
-              console.error("❌ Deep aging failed:", response.data.message);
-            }
-          } catch (error) {
-            console.error("❌ Error calling deep aging API:", error);
+          const response = await fetch("http://localhost:8000/api/deep-aging/transform", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ embeddings }),
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            let embeddings512D = data.transformed_embeddings; // Received 512D embeddings
+            console.log("✅ Deep-aged embeddings received (512D):", embeddings512D);
+
+            // 🔥 Reduce 512D to 128D
+            embeddings = reduceTo128D(embeddings512D);
+            console.log("✅ Reduced embeddings (128D):", embeddings);
+          } else {
+            console.error("❌ Deep aging failed:", data.message);
           }
         }
 
-        setFaceEmbeddings(processedEmbeddings);
-        filterResults(searchText, processedEmbeddings);
+        setFaceEmbeddings(embeddings); // ✅ Always store 128D embeddings
+        filterResults(searchText, embeddings);
       } else {
         console.warn("⚠️ No clear face detected. Please upload a clearer image.");
         setFaceEmbeddings(null);
         setMatchedUsers([]);
       }
     };
-  };
+  } catch (error) {
+    console.error("❌ Error processing image:", error);
+  }
+};
+
+
+  
+  
+
+
 
   const removeImage = () => {
     setImage(null);
