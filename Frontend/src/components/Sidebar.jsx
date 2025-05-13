@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import logo from '../assets/logo.png'
+import logo from '../assets/memoria.png'
 import "@fontsource/material-symbols-outlined";
 
 import { useSelector } from 'react-redux';
@@ -44,14 +44,14 @@ const navitems=[
         ,
         text:"explore"
     },
-    {
-        icon:(
-            <span className="material-symbols-outlined">
-        animated_images
-        </span>)
-        ,
-        text:"reels"
-    },
+    // {
+    //     icon:(
+    //         <span className="material-symbols-outlined">
+    //     animated_images
+    //     </span>)
+    //     ,
+    //     text:"reels"
+    // },
     {
         icon:(
             <span className="material-symbols-outlined">
@@ -78,15 +78,15 @@ add_box
         ,
         text:"create"
     },
-    {
-        icon:(
+    // {
+    //     icon:(
          
-            <span className="material-symbols-outlined">
-            insert_chart
-            </span>)
-        ,
-        text:"dashboard"
-    },
+    //         <span className="material-symbols-outlined">
+    //         insert_chart
+    //         </span>)
+    //     ,
+    //     text:"dashboard"
+    // },
     {
         icon:(<>
           <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -142,9 +142,9 @@ else if(text=="profile"){
     <div className="app flex w-full h-screen overflow-hidden">
     <div className='inline-block w-[16%] h-screen border-r-2 border-slate-300'
     ><div className="logo h-[15%] w-full flex justify-start items-center " >
-        <img className=" h-[45%] mx-6" src={logo}/>
+        <img className=" h-[100%] mt-6 mx-6" src={logo}/>
         </div>
-        <div className="options h-[80%] flex flex-col items-start">
+        <div className="options h-[80%] mt-14 flex flex-col items-start">
      {
         navitems.map((item,idx)=>{
             

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/memoria.png";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -118,7 +118,7 @@ const Login = () => {
 
           <p className="text-center my-1 text-slate-400 text-sm w-[80%] m-x-auto">
             People who use our service may have uploaded your contact
-            information to Instagram. Learn More By signing up, you agree to our
+            information to Memoria. Learn More By signing up, you agree to our
             Terms , Privacy Policy and Cookies Policy
           </p>
           <button
