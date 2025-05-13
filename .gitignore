@@ -1,2 +1,28 @@
+# Dependency directories
+node_modules/
 
-deep-aging-services
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# OS and IDE files
+.DS_Store
+.env
+*.env.local
+.vscode/
+.idea/
+
+# Output
+dist/
+build/
+
+# Project-specific ignored folder
+deep-aging-services/
