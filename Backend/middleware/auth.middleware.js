@@ -1,12 +1,9 @@
 import jwt from 'jsonwebtoken';
 import User from '../model/user.model.js';
-import cookieParser from 'cookie-parser';
-
-cookieParser(); // ⚠️ Not needed here, remove this line
 
 export const auth = async (req, res, next) => {
     try {
-        let token = req.cookies?.token || req.headers.authorization?.split(" ")[1]; 
+        let token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
         // 🛑 If no token is found, return error
         if (!token) {
@@ -27,7 +24,7 @@ export const auth = async (req, res, next) => {
             }
 
             // ✅ Fix: Use `_id` instead of `email` if you signed JWT with `_id`
-            const user = await User.findById(decoded.id); 
+            const user = await User.findById(decoded.id);
 
             if (!user) {
                 return res.status(404).json({

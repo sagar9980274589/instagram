@@ -43,16 +43,16 @@ app.get('/', (req, res) => {
 
 const userSocketMap = {}; // Store userId to socketId mappings
 export const getsocketid=(receiverId)=>{
-  
+
   return userSocketMap[receiverId]
 
 }
 // Handle socket connections
 io.on('connection', (socket) => {
- 
+
 
   const userId = socket.handshake.query.userId;
- 
+
   if (userId) {
     userSocketMap[userId] = socket.id;
 
@@ -65,20 +65,29 @@ io.on('connection', (socket) => {
   // Handle disconnection
   socket.on('disconnect', () => {
     const userId = socket.handshake.query.userId;
-    
+
     if (userId) {
       delete userSocketMap[userId];  // Remove user from map
-    
+
       io.emit('getonlineusers', Object.keys(userSocketMap));
     } else {
       console.log('Disconnected socket has no associated userId!');
     }
   });
-  //
+  // Handle manual disconnect by socket ID
   socket.on('disconnectById', (targetSocketId) => {
-    if (connectedSockets[targetSocketId]) {
-      connectedSockets[targetSocketId].disconnect();
-      console.log(`Socket with ID ${targetSocketId} has been disconnected`);
+    // Find the socket by ID in userSocketMap
+    const targetUserId = Object.keys(userSocketMap).find(
+      userId => userSocketMap[userId] === targetSocketId
+    );
+
+    if (targetUserId && userSocketMap[targetUserId]) {
+      // Get the socket instance and disconnect it
+      const targetSocket = io.sockets.sockets.get(targetSocketId);
+      if (targetSocket) {
+        targetSocket.disconnect();
+        console.log(`Socket with ID ${targetSocketId} has been disconnected`);
+      }
     } else {
       console.log(`No socket found with ID ${targetSocketId}`);
     }
