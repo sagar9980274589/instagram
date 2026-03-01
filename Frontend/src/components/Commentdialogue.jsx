@@ -93,15 +93,15 @@ const Commentdialogue = ({ post, isOpen, setIsOpen }) => {
                       <div className="flex w-[40%] justify-evenly">
                         <div className="profile w-10 h-10 rounded-full overflow-hidden">
                           <img
-                            src={com.author.profile}
+                            src={com?.author?.profile||""}
                             alt="Profile"
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="username">{com.author.username}</div>
+                        <div className="username">{com?.author?.username}</div>
                       </div>
                       <div className="commentcontent flex flex-row items-start h-[100%] m-0 p-0">
-                        <span className="h-full p-0">{com.comment}</span>
+                        <span className="h-full p-0">{com?.comment}</span>
                       </div>
                     </div>
                   ))}

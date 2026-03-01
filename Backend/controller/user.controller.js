@@ -180,7 +180,7 @@ export const getothersprofile = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ _id: username }).select("-password");
+    const user = await User.findOne({ _id: username }).select("-password").populate('posts').populate('bookmarks');
     if(user){
     res.status(200).json({
       success: true,
@@ -202,7 +202,7 @@ else{
 export const uploadpost = async (req, res) => {
   try {
     const userid = req.id;
-    const { caption } = req.body;
+    let { caption } = req.body;
     if (!caption) {
       caption = "";
     }

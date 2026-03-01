@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../AxiosInstance";
 import * as faceapi from "face-api.js";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const SearchPage = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [matchedUsers, setMatchedUsers] = useState([]);
@@ -9,7 +10,8 @@ const SearchPage = () => {
   const [image, setImage] = useState(null);
   const [faceEmbeddings, setFaceEmbeddings] = useState(null);
   const [deepAgingEnabled, setDeepAgingEnabled] = useState(false);
-
+ const [SelectedUserData,setSelectedUserData]=useState(null);
+ const navigate=useNavigate();
   useEffect(() => {
     async function getAllUsers() {
       try {
@@ -58,7 +60,9 @@ const SearchPage = () => {
     setSearchText(value);
     filterResults(value, faceEmbeddings);
   };
-
+ const handleShowProfile = (userId) => {
+    navigate(`/profile/${userId}`);
+  };
 const handleImageUpload = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -212,13 +216,20 @@ const handleImageUpload = async (event) => {
         <div className="mt-6 h-[45%] overflow-y-scroll">
           {matchedUsers.length > 0 ? (
             matchedUsers.map((user) => (
-              <div key={user._id} className="flex items-center gap-4 bg-white shadow-md rounded-lg p-4 mb-3">
+              <div onClick={()=>{handleShowProfile(user._id)}}  key={user._id} className="flex items-center gap-4 bg-white shadow-md rounded-lg p-4 mb-3">
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold text-gray-800">{user.username}</h2>
                   <p className="text-sm text-gray-500">{user.fullname}</p>
                 </div>
-                <span className="px-3 py-1 text-xs font-semibold rounded-lg bg-green-100 text-green-600">{user.matchType}</span>
+             {
+              (user.matchType=='Face Match'||user.matchType=='Text & Face Match')&&<span className="px-3 py-1 text-xs font-semibold rounded-lg bg-green-100 text-blue-600">{ Math.floor(user?.matchScore * 100) / 100}</span>
+              }
+               <span className="px-3 py-1 text-xs font-semibold rounded-lg bg-green-100 text-green-600">{user.matchType}</span>
               </div>
+  
+
+
+
             ))
           ) : (
             <p className="text-center text-gray-500 mt-4">No matching users found.</p>

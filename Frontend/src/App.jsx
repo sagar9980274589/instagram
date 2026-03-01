@@ -15,6 +15,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SearchPage from "./components/search/SearchPage";
 import GetFacialData from "./components/facialDataRegister/GetFacialData";
+import Userprofile from "./components/Userprofile";
 
 function App() {
   const dispatch = useDispatch();
@@ -75,6 +76,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Sidebar /></ProtectedRoute>}>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Myprofile />} />
+           <Route path="/profile/:id" element={<Userprofile />} />
           <Route path="/chat" element={<Chatpage />} />
           <Route path="/search" element={<SearchPage/>} />
         </Route>
